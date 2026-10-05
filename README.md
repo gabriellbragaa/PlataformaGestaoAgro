@@ -1,6 +1,6 @@
 <div align="center">
 
-  # 🌾 Plataforma Agromais
+  # 🌾 Plataforma AutoAgroNordeste
 
   **Sistema de Gestão Inteligente e Centralizada para o Agronegócio**
 
