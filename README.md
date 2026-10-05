@@ -16,7 +16,7 @@
 
 ## 📌 Sobre a Plataforma
 
-O **Agromais** é uma plataforma desenvolvida para modernizar, automatizar e simplificar a administração do setor agronegócio. Unindo a velocidade do **FastAPI** no backend e uma interface dinâmica no frontend, o sistema atua na eliminação de processos manuais e no aumento da confiabilidade das informações operacionais.
+O **AutoAgroNordeste** é uma plataforma desenvolvida para modernizar, automatizar e simplificar a administração do setor agronegócio. Unindo a velocidade do **FastAPI** no backend e uma interface dinâmica no frontend, o sistema atua na eliminação de processos manuais e no aumento da confiabilidade das informações operacionais.
 
 A plataforma resolve dores crônicas do setor — como cadastros inconsistentes, lentidão no processamento de grandes volumes de dados e burocracia na gestão de associados.
 
