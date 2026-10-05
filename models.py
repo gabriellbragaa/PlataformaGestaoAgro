@@ -90,46 +90,93 @@ class ParceriaUpdate(BaseModel):
 # ============================================================
 # FUNCIONÁRIO
 # ============================================================
-
 class Funcionario(BaseModel):
-    id_func: int
-    nome: str
-    rg: Optional[str] = None
+    id_func: Optional[int] = None
+    id_associado: int
     endereco: Optional[str] = None
     setor: str
-    id_admin: Optional[int] = None
 
 
 class FuncionarioUpdate(BaseModel):
-    nome: Optional[str] = None
-    rg: Optional[str] = None
+    id_associado: Optional[int] = None
     endereco: Optional[str] = None
     setor: Optional[str] = None
-    id_admin: Optional[int] = None
 
 
 # ============================================================
 # RECURSO
 # ============================================================
 
+from pydantic import BaseModel, Field
+from typing import Optional
+from datetime import date, time, datetime
+
+
 class Recurso(BaseModel):
-    id_recurso: int
-    qualidade: str
-    logistica: Optional[str] = None
-    armazenamento: Optional[str] = None
-    quantidade: int
-    valor_mercado: float
-    demandas: str
+    id_recurso: Optional[int] = None
+
+    tipo_recurso: str
+    categoria: str
+    nome: str
+    descricao: Optional[str] = None
+
+    id_produtor: int
+    id_cooperativa: Optional[int] = None
+
+    quantidade: float
+    unidade: str
+    valor: float
+
+    status: str = "Disponível"
+
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    endereco: Optional[str] = None
+
+    ano: Optional[int] = None
+
+    data_producao: Optional[date] = None
+    horario_producao: Optional[time] = None
+
+    qualidade: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=5
+    )
+
+    data_venda: Optional[datetime] = None
 
 
 class RecursoUpdate(BaseModel):
-    qualidade: Optional[str] = None
-    logistica: Optional[str] = None
-    armazenamento: Optional[str] = None
-    quantidade: Optional[int] = None
-    valor_mercado: Optional[float] = None
-    demandas: Optional[str] = None
 
+    tipo_recurso: Optional[str] = None
+    categoria: Optional[str] = None
+    nome: Optional[str] = None
+    descricao: Optional[str] = None
+
+    id_produtor: Optional[int] = None
+    id_cooperativa: Optional[int] = None
+
+    quantidade: Optional[float] = None
+    unidade: Optional[str] = None
+    valor: Optional[float] = None
+
+    status: Optional[str] = None
+
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    endereco: Optional[str] = None
+
+    ano: Optional[int] = None
+
+    data_producao: Optional[date] = None
+    horario_producao: Optional[time] = None
+
+    qualidade: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=5
+    )
 
 # ============================================================
 # CLIENTE
@@ -154,8 +201,12 @@ class ClienteUpdate(BaseModel):
 # ADMINISTRADOR
 # ============================================================
 
+from pydantic import BaseModel
+from typing import Optional
+
+
 class Administrador(BaseModel):
-    id_admin: int
+    id_admin: Optional[int] = None
     nome: str
     rg: Optional[str] = None
     id_associado: int
@@ -164,7 +215,7 @@ class Administrador(BaseModel):
 class AdministradorUpdate(BaseModel):
     nome: Optional[str] = None
     rg: Optional[str] = None
-
+    id_associado: Optional[int] = None
 
 # ============================================================
 # COOPERATIVA
@@ -191,3 +242,90 @@ class EmpresaUpdate(BaseModel):
     cnpj: Optional[str] = None
     nome_fantasia: Optional[str] = None
     tempo_atuacao: Optional[int] = None
+
+
+from pydantic import BaseModel
+from typing import Optional, List
+
+
+class Parceria(BaseModel):
+    id_empresa: int
+
+
+class CooperativaCompletaCreate(BaseModel):
+    nome: str
+    cnpj: str
+    telefone: Optional[str] = None
+    cep: Optional[str] = None
+    endereco: Optional[str] = None
+    bairro: Optional[str] = None
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    anos_servico: Optional[int] = None
+    quantidade_associados: Optional[int] = None
+    capacidade_producao: Optional[int] = None
+    parcerias: List[Parceria] = []
+
+from pydantic import BaseModel, Field
+from typing import Optional
+
+
+class ProdutoCooperativaCreate(BaseModel):
+    id_cooperativa: int
+    id_produtor: int
+
+    nome_produto: str = Field(
+        min_length=1,
+        max_length=150
+    )
+
+    qualidade: int = Field(
+        ge=1,
+        le=5
+    )
+
+    quantidade_vendida: float = Field(
+        ge=0
+    )
+
+    unidade: str
+
+
+class ProdutoCooperativaUpdate(BaseModel):
+    id_produtor: Optional[int] = None
+
+    nome_produto: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=150
+    )
+
+    qualidade: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=5
+    )
+
+    quantidade_vendida: Optional[float] = Field(
+        default=None,
+        ge=0
+    )
+
+    unidade: Optional[str] = None
+
+# ============================================================
+# ASSOCIADO
+# ============================================================
+
+class AssociadoCreate(BaseModel):
+    id_produtor: int
+    id_cooperativa: int
+    data_associacao: Optional[date] = None
+    status: Optional[str] = "Ativo"
+
+
+class AssociadoUpdate(BaseModel):
+    id_produtor: Optional[int] = None
+    id_cooperativa: Optional[int] = None
+    data_associacao: Optional[date] = None
+    status: Optional[str] = None

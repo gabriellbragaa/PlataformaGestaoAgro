@@ -5,7 +5,7 @@ from typing import List
 
 router = APIRouter()
 
-@router.post("/Cliente")
+@router.post("")
 async def criar_cliente(cli: Cliente):
     conn = get_connection()
     cur = conn.cursor()
@@ -41,7 +41,7 @@ async def listar_clientes():
         ) for c in clientes
     ]
 
-@router.get("/Cliente/{cliente_id}", response_model=Cliente)
+@router.get("/{cliente_id}", response_model=Cliente)
 async def obter_cliente(cliente_id: int):
     conn = get_connection()
     cur = conn.cursor()
@@ -59,7 +59,7 @@ async def obter_cliente(cliente_id: int):
         endereco=c[4]
     )
 
-@router.patch("/Cliente/{cliente_id}", response_model=Cliente)
+@router.patch("/{cliente_id}", response_model=Cliente)
 async def atualizar_cliente(cliente_id: int, cli: ClienteUpdate):
     conn = get_connection()
     cur = conn.cursor()
@@ -103,7 +103,7 @@ async def atualizar_cliente(cliente_id: int, cli: ClienteUpdate):
         cur.close()
         conn.close()
 
-@router.delete("/Cliente/{cliente_id}")
+@router.delete("/{cliente_id}")
 async def deletar_cliente(cliente_id: int):
     conn = get_connection()
     cur = conn.cursor()

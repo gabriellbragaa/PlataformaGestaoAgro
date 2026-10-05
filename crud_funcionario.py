@@ -1,145 +1,426 @@
+
 from fastapi import APIRouter, HTTPException
 from typing import List
+
 from db import get_connection
 from models import Funcionario, FuncionarioUpdate
 
+
 router = APIRouter()
 
-@router.post("/Funcionario")
+
+# ============================================================
+# CRIAR FUNCIONÁRIO
+# ============================================================
+
+@router.post("")
 async def criar_funcionario(func: Funcionario):
+
     conn = get_connection()
     cur = conn.cursor()
+
     try:
-        # Valida se o id_admin existe (se foi informado)
-        if func.id_admin is not None:
-            cur.execute("SELECT 1 FROM administrador WHERE id_admin = %s", (func.id_admin,))
-            if not cur.fetchone():
-                raise HTTPException(status_code=400, detail=f"Administrador com id {func.id_admin} não existe.")
-        
+
+        # ----------------------------------------------------
+        # VERIFICA SE O ASSOCIADO EXISTE
+        # ----------------------------------------------------
+
         cur.execute(
             """
-            INSERT INTO funcionario (id_func, nome, rg, endereco, setor, id_admin)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            SELECT id_associado
+            FROM associado
+            WHERE id_associado = %s
             """,
-            (func.id_func, func.nome, func.rg, func.endereco, func.setor, func.id_admin)
+            (func.id_associado,)
         )
+
+        associado = cur.fetchone()
+
+        if not associado:
+            raise HTTPException(
+                status_code=400,
+                detail="Associado não encontrado."
+            )
+
+        # ----------------------------------------------------
+        # VERIFICA SE O ASSOCIADO JÁ É FUNCIONÁRIO
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            SELECT id_func
+            FROM funcionario
+            WHERE id_associado = %s
+            """,
+            (func.id_associado,)
+        )
+
+        if cur.fetchone():
+            raise HTTPException(
+                status_code=400,
+                detail="Este associado já está cadastrado como funcionário."
+            )
+
+        # ----------------------------------------------------
+        # CADASTRA FUNCIONÁRIO
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            INSERT INTO funcionario
+                (id_func, id_associado, endereco, setor)
+            VALUES
+                (%s, %s, %s, %s)
+            RETURNING id_func
+            """,
+            (
+                func.id_func,
+                func.id_associado,
+                func.endereco,
+                func.setor
+            )
+        )
+
+        id_func = cur.fetchone()[0]
+
         conn.commit()
+
+        return {
+            "msg": "Funcionário criado com sucesso",
+            "id_func": id_func
+        }
+
+    except HTTPException:
+        conn.rollback()
+        raise
+
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao criar funcionário: {e}")
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Erro ao criar funcionário: {e}"
+        )
+
     finally:
         cur.close()
         conn.close()
-    
-    return {"msg": "Funcionário criado com sucesso"}
 
-@router.get("/Funcionarios", response_model=List[Funcionario])
+
+# ============================================================
+# LISTAR FUNCIONÁRIOS
+# ============================================================
+
+@router.get("")
 async def listar_funcionarios():
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id_func, nome, rg, endereco, setor, id_admin FROM funcionario")
-    funcionarios = cur.fetchall()
-    cur.close()
-    conn.close()
-    return [
-        Funcionario(
-            id_func=row[0],
-            nome=row[1],
-            rg=row[2],
-            endereco=row[3],
-            setor=row[4],
-            id_admin=row[5]
-        ) for row in funcionarios
-    ]
 
-@router.get("/Funcionario/{funcionario_id}", response_model=Funcionario)
-async def obter_funcionario(funcionario_id: int):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id_func, nome, rg, endereco, setor, id_admin FROM funcionario WHERE id_func = %s", (funcionario_id,))
-    funcionario = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if not funcionario:
-        raise HTTPException(status_code=404, detail="Funcionário não encontrado")
-
-    return Funcionario(
-        id_func=funcionario[0],
-        nome=funcionario[1],
-        rg=funcionario[2],
-        endereco=funcionario[3],
-        setor=funcionario[4],
-        id_admin=funcionario[5]
-    )
-
-@router.patch("/Funcionario/{funcionario_id}", response_model=Funcionario)
-async def atualizar_funcionario(funcionario_id: int, func: FuncionarioUpdate):
     conn = get_connection()
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT id_func FROM funcionario WHERE id_func = %s", (funcionario_id,))
-        if not cur.fetchone():
-            raise HTTPException(status_code=404, detail="Funcionário não encontrado")
 
-        fields = []
-        values = []
+        cur.execute(
+            """
+            SELECT
+                f.id_func,
+                f.id_associado,
+                p.nome,
+                f.endereco,
+                f.setor,
+                c.id_cooperativa,
+                c.nome AS cooperativa,
 
-        if func.nome is not None:
-            fields.append("nome = %s")
-            values.append(func.nome)
-        if func.rg is not None:
-            fields.append("rg = %s")
-            values.append(func.rg)
-        if func.endereco is not None:
-            fields.append("endereco = %s")
-            values.append(func.endereco)
-        if func.setor is not None:
-            fields.append("setor = %s")
-            values.append(func.setor)
-        if func.id_admin is not None:
-            fields.append("id_admin = %s")
-            values.append(func.id_admin)
+                CASE
+                    WHEN ad.id_admin IS NOT NULL
+                    THEN true
+                    ELSE false
+                END AS administrador
 
-        if not fields:
-            raise HTTPException(status_code=400, detail="Nenhum campo fornecido para atualização")
+            FROM funcionario f
 
-        values.append(funcionario_id)
-        query = f"UPDATE funcionario SET {', '.join(fields)} WHERE id_func = %s"
-        cur.execute(query, values)
-        conn.commit()
+            INNER JOIN associado a
+                ON a.id_associado = f.id_associado
 
-        cur.execute("SELECT id_func, nome, rg, endereco, setor, id_admin FROM funcionario WHERE id_func = %s", (funcionario_id,))
-        updated_func = cur.fetchone()
+            INNER JOIN produtor p
+                ON p.id_produtor = a.id_produtor
 
-        return Funcionario(
-            id_func=updated_func[0],
-            nome=updated_func[1],
-            rg=updated_func[2],
-            endereco=updated_func[3],
-            setor=updated_func[4],
-            id_admin=updated_func[5]
+            INNER JOIN cooperativa c
+                ON c.id_cooperativa = a.id_cooperativa
+
+            LEFT JOIN administrador ad
+                ON ad.id_associado = a.id_associado
+
+            ORDER BY f.id_func
+            """
         )
 
+        funcionarios = cur.fetchall()
+
+        return [
+            {
+                "id_func": f[0],
+                "id_associado": f[1],
+                "nome": f[2],
+                "endereco": f[3],
+                "setor": f[4],
+                "id_cooperativa": f[5],
+                "cooperativa": f[6],
+                "administrador": f[7]
+            }
+            for f in funcionarios
+        ]
+
     except Exception as e:
-        conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao atualizar funcionário: {str(e)}")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao listar funcionários: {e}"
+        )
+
     finally:
         cur.close()
         conn.close()
 
-@router.delete("/Funcionario/{funcionario_id}")
-async def deletar_funcionario(funcionario_id: int):
+
+# ============================================================
+# OBTER FUNCIONÁRIO
+# ============================================================
+
+@router.get("/{funcionario_id}")
+async def obter_funcionario(funcionario_id: int):
+
     conn = get_connection()
     cur = conn.cursor()
+
     try:
-        cur.execute("DELETE FROM funcionario WHERE id_func = %s", (funcionario_id,))
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao deletar funcionário: {e}")
+
+        cur.execute(
+            """
+            SELECT
+                f.id_func,
+                f.id_associado,
+                p.nome,
+                f.endereco,
+                f.setor,
+                c.id_cooperativa,
+                c.nome AS cooperativa,
+
+                CASE
+                    WHEN ad.id_admin IS NOT NULL
+                    THEN true
+                    ELSE false
+                END AS administrador
+
+            FROM funcionario f
+
+            INNER JOIN associado a
+                ON a.id_associado = f.id_associado
+
+            INNER JOIN produtor p
+                ON p.id_produtor = a.id_produtor
+
+            INNER JOIN cooperativa c
+                ON c.id_cooperativa = a.id_cooperativa
+
+            LEFT JOIN administrador ad
+                ON ad.id_associado = a.id_associado
+
+            WHERE f.id_func = %s
+            """,
+            (funcionario_id,)
+        )
+
+        funcionario = cur.fetchone()
+
+        if not funcionario:
+            raise HTTPException(
+                status_code=404,
+                detail="Funcionário não encontrado."
+            )
+
+        return {
+            "id_func": funcionario[0],
+            "id_associado": funcionario[1],
+            "nome": funcionario[2],
+            "endereco": funcionario[3],
+            "setor": funcionario[4],
+            "id_cooperativa": funcionario[5],
+            "cooperativa": funcionario[6],
+            "administrador": funcionario[7]
+        }
+
     finally:
         cur.close()
         conn.close()
-    return {"msg": "Funcionário deletado com sucesso"}
+
+
+# ============================================================
+# ATUALIZAR FUNCIONÁRIO
+# ============================================================
+
+@router.patch("/{funcionario_id}")
+async def atualizar_funcionario(
+    funcionario_id: int,
+    func: FuncionarioUpdate
+):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ----------------------------------------------------
+        # VERIFICA FUNCIONÁRIO
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            SELECT id_func
+            FROM funcionario
+            WHERE id_func = %s
+            """,
+            (funcionario_id,)
+        )
+
+        if not cur.fetchone():
+            raise HTTPException(
+                status_code=404,
+                detail="Funcionário não encontrado."
+            )
+
+        campos = []
+        valores = []
+
+        # ----------------------------------------------------
+        # ASSOCIADO
+        # ----------------------------------------------------
+
+        if func.id_associado is not None:
+
+            cur.execute(
+                """
+                SELECT id_associado
+                FROM associado
+                WHERE id_associado = %s
+                """,
+                (func.id_associado,)
+            )
+
+            if not cur.fetchone():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Associado não encontrado."
+                )
+
+            campos.append("id_associado = %s")
+            valores.append(func.id_associado)
+
+        # ----------------------------------------------------
+        # ENDEREÇO
+        # ----------------------------------------------------
+
+        if func.endereco is not None:
+
+            campos.append("endereco = %s")
+            valores.append(func.endereco)
+
+        # ----------------------------------------------------
+        # SETOR
+        # ----------------------------------------------------
+
+        if func.setor is not None:
+
+            campos.append("setor = %s")
+            valores.append(func.setor)
+
+        if not campos:
+
+            raise HTTPException(
+                status_code=400,
+                detail="Nenhum campo fornecido para atualização."
+            )
+
+        valores.append(funcionario_id)
+
+        query = f"""
+            UPDATE funcionario
+            SET {', '.join(campos)}
+            WHERE id_func = %s
+        """
+
+        cur.execute(query, valores)
+
+        conn.commit()
+
+        return await obter_funcionario(funcionario_id)
+
+    except HTTPException:
+        conn.rollback()
+        raise
+
+    except Exception as e:
+
+        conn.rollback()
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Erro ao atualizar funcionário: {e}"
+        )
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+# ============================================================
+# DELETAR FUNCIONÁRIO
+# ============================================================
+
+@router.delete("/{funcionario_id}")
+async def deletar_funcionario(funcionario_id: int):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute(
+            """
+            DELETE FROM funcionario
+            WHERE id_func = %s
+            RETURNING id_func
+            """,
+            (funcionario_id,)
+        )
+
+        funcionario = cur.fetchone()
+
+        if not funcionario:
+            raise HTTPException(
+                status_code=404,
+                detail="Funcionário não encontrado."
+            )
+
+        conn.commit()
+
+        return {
+            "msg": "Funcionário deletado com sucesso"
+        }
+
+    except HTTPException:
+        conn.rollback()
+        raise
+
+    except Exception as e:
+
+        conn.rollback()
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Erro ao deletar funcionário: {e}"
+        )
+
+    finally:
+        cur.close()
+        conn.close()
+

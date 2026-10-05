@@ -9,11 +9,13 @@ from crud_pecuarista import router as pecuarista_router
 from crud_agricultor import router as agricultor_router
 from crud_parceria import router as parceria_router
 from crud_administrador import router as administrador_router
-from crud_client import router as client_router
+from crud_cliente import router as client_router
 from crud_recurso import router as recurso_router
-from completo import router as completo_router
+from crud_cooperativa import router as cooperativa_router
 from crud_empresa import router as empresa_router
 
+from crud_produtos_cadastrados import router as produto_cooperativa_router
+from crud_associado import router as associado_router
 
 app = FastAPI(
     title="AgroLinker API",
@@ -86,6 +88,7 @@ def test_neon():
 # ROUTERS
 # ============================================================
 
+
 app.include_router(
     produtor_router,
     prefix="/produtor",
@@ -124,8 +127,8 @@ app.include_router(
 
 app.include_router(
     client_router,
-    prefix="/client",
-    tags=["Client"]
+    prefix="/cliente",
+    tags=["Cliente"]
 )
 
 app.include_router(
@@ -135,9 +138,9 @@ app.include_router(
 )
 
 app.include_router(
-    completo_router,
-    prefix="/completo",
-    tags=["Completo"]
+    cooperativa_router,
+    prefix="/cooperativa",
+    tags=["Cooperativa"]
 )
 
 app.include_router(
@@ -145,3 +148,13 @@ app.include_router(
     prefix="/empresa",
     tags=["Empresa"]
 )
+app.include_router(
+    produto_cooperativa_router,
+    prefix="/produto-cooperativa",
+    tags=["Produtos da Cooperativa"]
+)
+app.include_router(
+    associado_router,
+    prefix="/associado",
+    tags=["Associado"]
+)   

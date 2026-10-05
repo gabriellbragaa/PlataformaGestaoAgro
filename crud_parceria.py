@@ -5,7 +5,7 @@ from models import Parceria, ParceriaUpdate
 
 router = APIRouter()
 
-@router.post("/Parceria")
+@router.post("")
 async def criar_parceria(par: Parceria):
     conn = get_connection()
     cur = conn.cursor()
@@ -23,7 +23,7 @@ async def criar_parceria(par: Parceria):
         conn.close()
     return {"msg": "Parceria criada com sucesso"}
 
-@router.get("/Parcerias", response_model=List[Parceria])
+@router.get("", response_model=List[Parceria])
 async def listar_parcerias():
     conn = get_connection()
     cur = conn.cursor()
@@ -38,7 +38,7 @@ async def listar_parcerias():
         ) for row in parcerias
     ]
 
-@router.get("/Parceria/{id_empresa}/{id_cooperativa}", response_model=Parceria)
+@router.get("/{id_empresa}/{id_cooperativa}", response_model=Parceria)
 async def obter_parceria(id_empresa: int, id_cooperativa: int):
     conn = get_connection()
     cur = conn.cursor()
@@ -58,7 +58,7 @@ async def obter_parceria(id_empresa: int, id_cooperativa: int):
         id_cooperativa=parceria[1]
     )
 
-@router.patch("/Parceria/{id_empresa}/{id_cooperativa}", response_model=Parceria)
+@router.patch("/{id_empresa}/{id_cooperativa}", response_model=Parceria)
 async def atualizar_parceria(id_empresa: int, id_cooperativa: int, par: ParceriaUpdate):
     conn = get_connection()
     cur = conn.cursor()
@@ -110,7 +110,7 @@ async def atualizar_parceria(id_empresa: int, id_cooperativa: int, par: Parceria
         cur.close()
         conn.close()
 
-@router.delete("/Parceria/{id_empresa}/{id_cooperativa}")
+@router.delete("/{id_empresa}/{id_cooperativa}")
 async def deletar_parceria(id_empresa: int, id_cooperativa: int):
     conn = get_connection()
     cur = conn.cursor()

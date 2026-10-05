@@ -33,15 +33,30 @@ export const empresaAPI = {
   atualizar: (id, dados) => api.put(`/empresa/${id}`, dados),
   excluir: (id) => api.delete(`/empresa/${id}`),
 };
+export const cooperativaAPI = {
+  listar: () => api.get("/cooperativa"),
+  criar: (dados) => api.post("/cooperativa", dados),
+  buscar: (id) => api.get(`/cooperativa/${id}`),
+  atualizar: (id, dados) => api.put(`/cooperativa/${id}`, dados),
+  excluir: (id) => api.delete(`/cooperativa/${id}`),
+    importar: (formData) =>
+    api.post("/cooperativa/importar", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+};
 
 export const clienteAPI = {
   listar: () => api.get("/client"),
   criar: (dados) => api.post("/client", dados),
+  buscar: (id) => api.get(`/client/${id}`),
 };
 
 export const funcionarioAPI = {
   listar: () => api.get("/funcionario"),
   criar: (dados) => api.post("/funcionario", dados),
+  buscar: (id) => api.get(`/funcionario/${id}`),
+  atualizar: (id, dados) => api.patch(`/funcionario/${id}`, dados),
+  excluir: (id) => api.delete(`/funcionario/${id}`),
 };
 
 export const recursoAPI = {
@@ -52,6 +67,22 @@ export const recursoAPI = {
 export const parceriaAPI = {
   listar: () => api.get("/parceria"),
   criar: (dados) => api.post("/parceria", dados),
+};
+
+export const produtoCooperativaAPI = {
+  listar: () => api.get("/produto-cooperativa"),
+  criar: (dados) => api.post("/produto-cooperativa", dados),
+  buscar: (id) => api.get(`/produto-cooperativa/${id}`),
+  atualizar: (id, dados) => api.put(`/produto-cooperativa/${id}`, dados),
+  excluir: (id) => api.delete(`/produto-cooperativa/${id}`),
+};
+
+export const associadoAPI = {
+  listar: () => api.get("/associado"),
+  criar: (dados) => api.post("/associado", dados),
+  buscar: (id) => api.get(`/associado/${id}`),
+  atualizar: (id, dados) => api.put(`/associado/${id}`, dados),
+  excluir: (id) => api.delete(`/associado/${id}`),
 };
 
 export default api;
