@@ -1,6 +1,20 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
+from sqlalchemy import Column, Integer, String
+from db import Base
+
+
+
+class Usuario(Base):
+    __tablename__ = "usuario"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    age = Column(Integer, nullable=False)
+    telefone = Column(String(20), nullable=False)
+    cpf = Column(String(14), unique=True, nullable=False)
+    senha = Column(String(100), nullable=False)
 
 
 # ============================================================
@@ -29,6 +43,8 @@ class ProdutorUpdate(BaseModel):
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
+
+#----------------------
 
 
 class AgricultorCreate(BaseModel):
@@ -266,9 +282,7 @@ class CooperativaCompletaCreate(BaseModel):
     capacidade_producao: Optional[int] = None
     parcerias: List[Parceria] = []
 
-from pydantic import BaseModel, Field
-from typing import Optional
-
+# ---------- Produto Cooperativa ----------
 
 class ProdutoCooperativaCreate(BaseModel):
     id_cooperativa: int

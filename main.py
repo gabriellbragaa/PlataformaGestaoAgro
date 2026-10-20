@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db import get_neon_connection
 
+from crud_usuario import router as usuario_router
 from crud import router as produtor_router
 from crud_funcionario import router as funcionario_router
 from crud_pecuarista import router as pecuarista_router
@@ -88,6 +89,10 @@ def test_neon():
 # ROUTERS
 # ============================================================
 
+app.include_router(
+    usuario_router,
+    prefix="/usuario"
+)
 
 app.include_router(
     produtor_router,

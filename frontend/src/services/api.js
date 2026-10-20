@@ -7,6 +7,11 @@ const api = axios.create({
   },
 });
 
+export const usuarioAPI = {
+  criar: (dados) => api.post("/usuario", dados),
+  atualizar: (id, dados) => api.put(`/usuario/${id}`, dados),
+};
+
 export const produtorAPI = {
   listar: () => api.get("/produtor"),
   buscar: (id) => api.get(`/produtor/${id}`),
@@ -39,7 +44,7 @@ export const cooperativaAPI = {
   buscar: (id) => api.get(`/cooperativa/${id}`),
   atualizar: (id, dados) => api.put(`/cooperativa/${id}`, dados),
   excluir: (id) => api.delete(`/cooperativa/${id}`),
-    importar: (formData) =>
+  importar: (formData) =>
     api.post("/cooperativa/importar", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
@@ -70,11 +75,11 @@ export const parceriaAPI = {
 };
 
 export const produtoCooperativaAPI = {
-  listar: () => api.get("/produto-cooperativa"),
-  criar: (dados) => api.post("/produto-cooperativa", dados),
-  buscar: (id) => api.get(`/produto-cooperativa/${id}`),
-  atualizar: (id, dados) => api.put(`/produto-cooperativa/${id}`, dados),
-  excluir: (id) => api.delete(`/produto-cooperativa/${id}`),
+  listar: () => api.get("/produtocooperativa"),
+  criar: (dados) => api.post("/produtocooperativa", dados),
+  buscar: (id) => api.get(`/produtocooperativa/${id}`),
+  atualizar: (id, dados) => api.put(`/produtocooperativa/${id}`, dados),
+  excluir: (id) => api.delete(`/produtocooperativa/${id}`),
 };
 
 export const associadoAPI = {

@@ -1,7 +1,45 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from datetime import date
 
+# -- USUARIO ---
+
+class UsuarioCreate(BaseModel):
+    nome: str
+    idade: int
+    telefone: str
+    cpf: str
+    senha: str
+
+    senha: str = Field(..., min_length=4)
+
+    @field_validator('senha')
+    def validate_password_length(cls, v):
+        if len(v.encode('utf-8')) > 72:
+            raise ValueError('A senha é muito longa (máximo de 72 bytes).')
+        return v
+
+class UsuarioUpdate(BaseModel):
+    nome: Optional[str] = None
+    idade: Optional[int] = None
+    telefone: Optional[str] = None
+    cpf: Optional[str] = None
+    senha: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class UsuarioResponse(BaseModel):
+    id: int
+    nome: str
+    idade: int
+    telefone: str
+    cpf: str
+    senha: str
+
+    class Config:
+        from_attributes = True
+    
 # --- PRODUTOR ---
 
 class ProdutorBase(BaseModel):
@@ -27,6 +65,25 @@ class AgricultorCreate(BaseModel):
     exp_mercado: int
     data_nascimento: date
     telefone: str
+
+
+# --- PRODUTO COOPERATIVA ---
+
+class ProdutoCooperativaCreate(BaseModel):
+    id_cooperativa: int
+    nome: str
+    tipo: str
+    qualidade: str
+    valor_mercado: float
+    status_valor: str
+    capacidade_producao: int
+
+class ProdutoCooperativa(ProdutoCooperativaCreate):
+    id_produto: int
+
+    class Config:
+        orm_mode = True
+
 
 # --- PARCERIA ---
 

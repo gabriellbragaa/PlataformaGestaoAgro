@@ -185,17 +185,17 @@ function Produtos() {
     // EDITAR PRODUTO
     // =========================================================
 
-    function editarProduto(produto) {
-        setEditando(produto);
+    function editarProduto(produtocooperativa) {
+        setEditando(produtocooperativa);
 
         setForm({
-            id_cooperativa: produto.id_cooperativa,
-            id_produtor: produto.id_produtor,
-            nome_produto: produto.nome_produto || "",
-            qualidade: produto.qualidade || 5,
+            id_cooperativa: produtocooperativa.id_cooperativa,
+            id_produtor: produtocooperativa.id_produtor,
+            nome_produto: produtocooperativa.nome_produto || "",
+            qualidade: produtocooperativa.qualidade || 5,
             quantidade_vendida:
-                produto.quantidade_vendida ?? "",
-            unidade: produto.unidade || "kg"
+                produtocooperativa.quantidade_vendida ?? "",
+            unidade: produtocooperativa.unidade || "kg"
         });
 
         setModalAberto(true);
