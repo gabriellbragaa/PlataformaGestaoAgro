@@ -1,36 +1,56 @@
+
 from fastapi import APIRouter, HTTPException
 from passlib.context import CryptContext
 
 from db import get_connection
-from schemas import UsuarioCreate
+from schemas import UsuarioCreate, UsuarioLogin
 
 router = APIRouter()
 
-# Configuração para hash seguro de senha usando bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# ============================================================
+# CONFIGURAÇÃO DE HASH DE SENHA
+# ============================================================
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
 
 
 def gerar_hash_senha(senha: str) -> str:
-    """Gera o hash da senha fornecida pelo usuário."""
+    """Gera um hash seguro da senha usando bcrypt."""
+
+    if not senha:
+        raise HTTPException(
+            status_code=400,
+            detail="A senha não pode estar vazia."
+        )
+
+    if len(senha.encode("utf-8")) > 72:
+        raise HTTPException(
+            status_code=400,
+            detail="A senha não pode ultrapassar 72 bytes."
+        )
+
     return pwd_context.hash(senha)
 
 
 # ============================================================
 # CRIAR USUÁRIO
+# POST /usuario
 # ============================================================
 
 @router.post("")
 async def criar_usuario(usuario: UsuarioCreate):
 
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
 
     try:
+        conn = get_connection()
+        cur = conn.cursor()
 
-        # ----------------------------------------------------
-        # VERIFICA SE O CPF JÁ ESTÁ CADASTRADO
-        # ----------------------------------------------------
-
+        # Verifica se o CPF já está cadastrado
         cur.execute(
             """
             SELECT id
@@ -46,16 +66,10 @@ async def criar_usuario(usuario: UsuarioCreate):
                 detail="Este CPF já está cadastrado."
             )
 
-        # ----------------------------------------------------
-        # GERA O HASH DA SENHA
-        # ----------------------------------------------------
-
+        # Gera o hash da senha
         senha_criptografada = gerar_hash_senha(usuario.senha)
 
-        # ----------------------------------------------------
-        # CADASTRA USUÁRIO
-        # ----------------------------------------------------
-
+        # Insere o usuário no banco
         cur.execute(
             """
             INSERT INTO usuario
@@ -74,12 +88,10 @@ async def criar_usuario(usuario: UsuarioCreate):
         )
 
         id_usuario = cur.fetchone()[0]
-
         conn.commit()
 
-        # Nunca retorne a senha em texto puro ou hash nas respostas!
         return {
-            "msg": "Usuário criado com sucesso",
+            "msg": "Usuário criado com sucesso.",
             "id": id_usuario,
             "nome": usuario.nome,
             "idade": usuario.idade,
@@ -88,42 +100,44 @@ async def criar_usuario(usuario: UsuarioCreate):
         }
 
     except HTTPException:
-        conn.rollback()
+        if conn:
+            conn.rollback()
         raise
 
     except Exception as e:
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         raise HTTPException(
-            status_code=400,
+            status_code=500,
             detail=f"Erro ao criar usuário: {e}"
         )
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 # ============================================================
 # LISTAR USUÁRIOS
+# GET /usuario
 # ============================================================
 
 @router.get("")
 async def listar_usuarios():
 
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
 
     try:
+        conn = get_connection()
+        cur = conn.cursor()
 
         cur.execute(
             """
-            SELECT
-                id,
-                name,
-                age,
-                telefone,
-                cpf
+            SELECT id, name, age, telefone, cpf
             FROM usuario
             ORDER BY id
             """
@@ -143,37 +157,36 @@ async def listar_usuarios():
         ]
 
     except Exception as e:
-
         raise HTTPException(
             status_code=500,
             detail=f"Erro ao listar usuários: {e}"
         )
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 # ============================================================
-# OBTER USUÁRIO
+# OBTER USUÁRIO POR ID
+# GET /usuario/{usuario_id}
 # ============================================================
 
 @router.get("/{usuario_id}")
 async def obter_usuario(usuario_id: int):
 
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
 
     try:
+        conn = get_connection()
+        cur = conn.cursor()
 
         cur.execute(
             """
-            SELECT
-                id,
-                name,
-                age,
-                telefone,
-                cpf
+            SELECT id, name, age, telefone, cpf
             FROM usuario
             WHERE id = %s
             """,
@@ -196,13 +209,25 @@ async def obter_usuario(usuario_id: int):
             "cpf": usuario[4]
         }
 
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao consultar usuário: {e}"
+        )
+
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 # ============================================================
 # ATUALIZAR USUÁRIO
+# PATCH /usuario/{usuario_id}
 # ============================================================
 
 @router.patch("/{usuario_id}")
@@ -211,15 +236,14 @@ async def atualizar_usuario(
     usuario: UsuarioCreate
 ):
 
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
 
     try:
+        conn = get_connection()
+        cur = conn.cursor()
 
-        # ----------------------------------------------------
-        # VERIFICA USUÁRIO
-        # ----------------------------------------------------
-
+        # Verifica se o usuário existe
         cur.execute(
             """
             SELECT id
@@ -235,21 +259,15 @@ async def atualizar_usuario(
                 detail="Usuário não encontrado."
             )
 
-        # ----------------------------------------------------
-        # VERIFICA CPF
-        # ----------------------------------------------------
-
+        # Verifica se o CPF pertence a outro usuário
         cur.execute(
             """
             SELECT id
             FROM usuario
             WHERE cpf = %s
-            AND id <> %s
+              AND id <> %s
             """,
-            (
-                usuario.cpf,
-                usuario_id
-            )
+            (usuario.cpf, usuario_id)
         )
 
         if cur.fetchone():
@@ -258,12 +276,10 @@ async def atualizar_usuario(
                 detail="Este CPF já está cadastrado para outro usuário."
             )
 
-        # ----------------------------------------------------
-        # ATUALIZA USUÁRIO
-        # ----------------------------------------------------
-
+        # Gera novo hash para a senha atualizada
         senha_criptografada = gerar_hash_senha(usuario.senha)
 
+        # Atualiza os dados
         cur.execute(
             """
             UPDATE usuario
@@ -287,37 +303,50 @@ async def atualizar_usuario(
 
         conn.commit()
 
-        return await obter_usuario(usuario_id)
+        return {
+            "msg": "Usuário atualizado com sucesso.",
+            "id": usuario_id,
+            "nome": usuario.nome,
+            "idade": usuario.idade,
+            "telefone": usuario.telefone,
+            "cpf": usuario.cpf
+        }
 
     except HTTPException:
-        conn.rollback()
+        if conn:
+            conn.rollback()
         raise
 
     except Exception as e:
-
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         raise HTTPException(
-            status_code=400,
+            status_code=500,
             detail=f"Erro ao atualizar usuário: {e}"
         )
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 # ============================================================
 # DELETAR USUÁRIO
+# DELETE /usuario/{usuario_id}
 # ============================================================
 
 @router.delete("/{usuario_id}")
 async def deletar_usuario(usuario_id: int):
 
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
 
     try:
+        conn = get_connection()
+        cur = conn.cursor()
 
         cur.execute(
             """
@@ -339,22 +368,107 @@ async def deletar_usuario(usuario_id: int):
         conn.commit()
 
         return {
-            "msg": "Usuário deletado com sucesso"
+            "msg": "Usuário deletado com sucesso.",
+            "id": usuario[0]
         }
 
     except HTTPException:
-        conn.rollback()
+        if conn:
+            conn.rollback()
         raise
 
     except Exception as e:
-
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         raise HTTPException(
-            status_code=400,
+            status_code=500,
             detail=f"Erro ao deletar usuário: {e}"
         )
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+@router.post("/login")
+async def login_usuario(dados: UsuarioLogin):
+
+    conn = None
+    cur = None
+
+    try:
+        # Normaliza o CPF removendo pontos, traços e espaços
+        cpf = "".join(
+            caractere
+            for caractere in dados.cpf
+            if caractere.isdigit()
+        )
+
+        if len(cpf) != 11:
+            raise HTTPException(
+                status_code=400,
+                detail="CPF inválido."
+            )
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # Busca o usuário pelo CPF
+        cur.execute(
+            """
+            SELECT id, name, age, telefone, cpf, senha_hash
+            FROM usuario
+            WHERE cpf = %s
+            """,
+            (cpf,)
+        )
+
+        usuario = cur.fetchone()
+
+        # Mensagem genérica para não revelar se o CPF existe
+        if not usuario:
+            raise HTTPException(
+                status_code=401,
+                detail="CPF ou senha incorretos."
+            )
+
+        senha_hash = usuario[5]
+
+        # Confere a senha digitada com o hash salvo no banco
+        if not senha_hash or not pwd_context.verify(
+            dados.senha,
+            senha_hash
+        ):
+            raise HTTPException(
+                status_code=401,
+                detail="CPF ou senha incorretos."
+            )
+
+        # Login validado
+        return {
+            "msg": "Login realizado com sucesso.",
+            "usuario": {
+                "id": usuario[0],
+                "nome": usuario[1],
+                "idade": usuario[2],
+                "telefone": usuario[3],
+                "cpf": usuario[4]
+            }
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno ao realizar login."
+        )
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()

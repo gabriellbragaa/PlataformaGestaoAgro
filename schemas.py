@@ -2,6 +2,11 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from datetime import date
 
+# usuario login
+class UsuarioLogin(BaseModel):
+    cpf: str = Field(min_length=11, max_length=14)
+    senha: str = Field(min_length=1, max_length=1024)
+
 # -- USUARIO ---
 
 class UsuarioCreate(BaseModel):

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import Home from "./pages/Home";
+import Acesso from "./pages/Acesso";
 import Dashboard from "./pages/Dashboard";
 import Produtores from "./pages/Produtores";
 import Produtos from "./pages/Produtos";
@@ -139,6 +140,9 @@ function App() {
     switch (activeTab) {
       case "home":
         return <Home />;
+
+      case "acesso":
+        return <Acesso />;
 
       case "dashboard":
         return <Dashboard />;
@@ -279,7 +283,7 @@ function App() {
           </a>
           <button
             className="header-cta"
-            onClick={() => navigate("dashboard")}
+            onClick={() => navigate("acesso")}
           >
             Acessar sistema <ArrowRight size={16} />
           </button>
@@ -415,7 +419,7 @@ function App() {
 
             <button
               className="features-button"
-              onClick={() => navigate("dashboard")}
+              onClick={() => navigate("acesso")}
             >
               Acessar plataforma <ArrowRight size={17} />
             </button>
@@ -456,7 +460,7 @@ function App() {
           </div>
           <button
             className="closing-button"
-            onClick={() => navigate("dashboard")}
+            onClick={() => navigate("acesso")}
           >
             Entrar no sistema <ArrowRight size={17} />
           </button>

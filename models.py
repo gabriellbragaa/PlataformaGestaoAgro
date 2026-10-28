@@ -1,9 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date
 from sqlalchemy import Column, Integer, String
 from db import Base
-
 
 
 class Usuario(Base):

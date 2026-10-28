@@ -1,0 +1,333 @@
+
+.acesso-page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 42px 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at top left,
+      rgba(201, 229, 138, 0.23),
+      transparent 42%
+    ),
+    #f5f7f0;
+  font-family: "DM Sans", sans-serif;
+}
+
+.acesso-decoration {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(57, 112, 74, 0.09);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.acesso-decoration-one {
+  top: -130px;
+  right: -80px;
+}
+
+.acesso-decoration-two {
+  bottom: -180px;
+  left: -80px;
+  width: 380px;
+  height: 380px;
+}
+
+.acesso-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 450px;
+  padding: 35px;
+  border: 1px solid #e7eadd;
+  border-radius: 20px;
+  background: #fffefa;
+  box-shadow: 0 24px 70px rgba(25, 54, 34, 0.09);
+}
+
+.acesso-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #69776a;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.acesso-back:hover {
+  color: #39704a;
+}
+
+.acesso-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: fit-content;
+  margin-top: 31px;
+  color: #1c3929;
+  font-family: "Manrope", sans-serif;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  text-decoration: none;
+}
+
+.acesso-brand > span:last-child > span {
+  color: #4b8756;
+}
+
+.acesso-brand-icon {
+  display: grid;
+  width: 45px;
+  height: 45px;
+  place-items: center;
+  border-radius: 13px;
+  color: white;
+  background: #285139;
+}
+
+.acesso-heading {
+  margin-top: 34px;
+}
+
+.acesso-eyebrow {
+  color: #4b8756;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+}
+
+.acesso-heading h1 {
+  margin: 12px 0 10px;
+  color: #1c3929;
+  font-family: "Manrope", sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -1px;
+}
+
+.acesso-heading > p {
+  margin: 0;
+  color: #778076;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.acesso-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-top: 28px;
+  padding: 5px;
+  border-radius: 10px;
+  background: #f0f2eb;
+}
+
+.acesso-tabs button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 7px;
+  color: #69766b;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.acesso-tabs button.selected {
+  color: white;
+  background: #285139;
+  box-shadow: 0 2px 6px rgba(20, 43, 32, 0.12);
+}
+
+.acesso-form {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  margin-top: 25px;
+}
+
+.acesso-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.acesso-field label {
+  color: #293f30;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.acesso-field input {
+  width: 100%;
+  height: 47px;
+  padding: 0 13px;
+  border: 1px solid #dfe4d9;
+  border-radius: 8px;
+  outline: none;
+  color: #24392a;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.acesso-field input::placeholder {
+  color: #a6aea3;
+}
+
+.acesso-field input:focus {
+  border-color: #4b8756;
+  box-shadow: 0 0 0 3px rgba(75, 135, 86, 0.12);
+}
+
+.acesso-password {
+  position: relative;
+}
+
+.acesso-password input {
+  padding-right: 46px;
+}
+
+.acesso-toggle-password {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: 43px;
+  height: 47px;
+  place-items: center;
+  border: 0;
+  color: #778076;
+  background: transparent;
+}
+
+.acesso-toggle-password:hover {
+  color: #285139;
+}
+
+.acesso-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 49px;
+  margin-top: 2px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9px;
+  color: white;
+  background: #285139;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.acesso-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #39704a;
+}
+
+.acesso-submit:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.acesso-arrow-login {
+  transform: rotate(180deg);
+}
+
+.acesso-spinner {
+  animation: acesso-spin 1s linear infinite;
+}
+
+@keyframes acesso-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.acesso-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.acesso-message svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.acesso-message.success {
+  border: 1px solid #d2e8ce;
+  color: #285b32;
+  background: #f0f8ed;
+}
+
+.acesso-message.error {
+  border: 1px solid #f0d4d0;
+  color: #a43830;
+  background: #fff4f2;
+}
+
+.acesso-security {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #ebede5;
+}
+
+.acesso-shield {
+  display: grid;
+  flex-shrink: 0;
+  color: #4b8756;
+}
+
+.acesso-security p {
+  margin: 0;
+  color: #7b847a;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.acesso-footer {
+  margin-top: 25px;
+  color: #9aa195;
+  font-size: 10px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .acesso-page {
+    align-items: flex-start;
+    padding: 18px 12px;
+  }
+
+  .acesso-card {
+    padding: 25px 21px;
+    border-radius: 15px;
+  }
+
+  .acesso-heading h1 {
+    font-size: 26px;
+  }
+}
