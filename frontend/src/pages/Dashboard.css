@@ -1,0 +1,41 @@
+.dx-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.dx-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .dx-grid-2, .dx-grid-3 { grid-template-columns: 1fr; } }
+
+.dx-box { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background: #fff; }
+.dx-box h4 { margin: 0 0 10px; font-size: 15px; }
+.dx-muted { color: #6b7280; font-size: 13px; }
+.dx-alert { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; background: #fef3c7; color: #92400e; font-size: 14px; }
+.dx-error { background: #fee2e2; color: #991b1b; }
+
+.dx-table-wrap { overflow-x: auto; }
+.dx-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.dx-table th, .dx-table td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+.dx-table th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; }
+.dx-num { text-align: right !important; font-variant-numeric: tabular-nums; }
+
+.dx-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid #d1d5db;
+  border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; text-decoration: none; color: inherit; }
+.dx-btn:hover { background: #f9fafb; }
+.dx-btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.dx-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.dx-tab { padding: 6px 12px; border-radius: 999px; border: 1px solid #d1d5db; background: #fff; cursor: pointer; font-size: 13px; }
+.dx-tab.on { background: #166534; border-color: #166534; color: #fff; }
+
+.dx-news { list-style: none; margin: 0; padding: 0; }
+.dx-news li { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.dx-news a { color: inherit; font-weight: 600; text-decoration: none; }
+.dx-news a:hover { text-decoration: underline; }
+
+.dx-conv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dx-conv input, .dx-conv select { width: 100%; padding: 9px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
+.dx-result { margin-top: 12px; font-size: 22px; font-weight: 700; }
+
+.dx-org { display: flex; flex-direction: column; gap: 8px; }
+.dx-org strong { font-size: 15px; }
+
+@media print {
+  .sidebar, .content-topbar, .dx-noprint { display: none !important; }
+  .main-content { margin: 0 !important; padding: 0 !important; }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./Cooperativas.css";
 import {
     Plus,
     Trash2,
@@ -331,7 +332,7 @@ function Cooperativas() {
     }
 
     return (
-        <div>
+        <div className="cooperativas-page">
             {/* Cabeçalho */}
             <div className="page-header">
                 <div>

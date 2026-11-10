@@ -1,0 +1,105 @@
+/* Complementa o CSS existente (page-header, btn-primary, table-container,
+   custom-table, badge, badge-green, badge-blue). Importe em main.jsx/App.jsx. */
+
+.badge-gray   { background: #f1f5f9; color: #475569; }
+.badge-yellow { background: #fef9c3; color: #854d0e; }
+.badge-red    { background: #fee2e2; color: #b91c1c; }
+.badge-gray, .badge-yellow, .badge-red {
+  display: inline-block; padding: 0.2rem 0.55rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 600;
+}
+
+.agro-erro {
+  padding: 1rem; background: #fee2e2; color: #dc2626;
+  border-radius: 8px; margin-bottom: 1rem;
+}
+
+.agro-sec-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1rem; margin-bottom: 1rem;
+}
+.agro-sec-head h3 { margin: 0; }
+.agro-sec-head p  { margin: 4px 0 0; color: #64748b; font-size: 0.9rem; }
+
+.agro-busca { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+.agro-busca input {
+  padding: 0.6rem 1rem; border: 1px solid #ccc; border-radius: 6px; width: 300px; max-width: 100%;
+}
+
+.agro-icon-btn {
+  border: none; background: transparent; cursor: pointer; padding: 0.25rem;
+  border-radius: 6px; display: inline-flex; align-items: center; color: inherit;
+}
+.agro-icon-btn:hover:not(:disabled) { background: #f1f5f9; }
+.agro-icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.agro-icon-btn:focus-visible, .agro-abas button:focus-visible { outline: 2px solid #16a34a; outline-offset: 2px; }
+
+/* abas */
+.agro-abas { display: flex; gap: 4px; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem; overflow-x: auto; }
+.agro-abas button {
+  border: none; background: transparent; padding: 0.7rem 1.1rem; cursor: pointer;
+  font-weight: 600; font-size: 0.9rem; color: #64748b; border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+.agro-abas button:hover { color: #1e293b; }
+.agro-abas button.ativa { color: #15803d; border-bottom-color: #16a34a; }
+
+/* cards de resumo */
+.agro-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.agro-resumo-item {
+  background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #16a34a;
+  border-radius: 8px; padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 2px;
+}
+.agro-resumo-item.alerta { border-left-color: #eab308; }
+.agro-resumo-item.perigo { border-left-color: #dc2626; }
+.agro-resumo-item .rotulo { font-size: 0.8rem; color: #64748b; }
+.agro-resumo-item strong { font-size: 1.4rem; color: #0f172a; }
+.agro-resumo-item small { color: #64748b; }
+
+/* modal */
+.agro-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+.agro-modal {
+  background: #fff; padding: 2rem; border-radius: 12px; width: 100%;
+  max-height: 90vh; overflow-y: auto; box-sizing: border-box;
+}
+.agro-modal-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+.agro-modal-head h2 { margin: 0; }
+.agro-modal-head p { margin: 5px 0 0; color: #666; }
+
+.agro-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.agro-campo { display: flex; flex-direction: column; gap: 5px; }
+.agro-campo.full { grid-column: 1 / -1; }
+.agro-campo label { font-weight: 600; font-size: 0.875rem; color: #334155; }
+.agro-campo .req { color: #dc2626; }
+.agro-campo small { color: #64748b; }
+.agro-input {
+  width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 6px;
+  background: #fff; box-sizing: border-box; font: inherit;
+}
+.agro-input:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
+.agro-input[readonly] { background: #f8fafc; color: #64748b; }
+
+.agro-form-acoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; }
+.agro-btn-sec {
+  padding: 0.7rem 1.2rem; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer;
+}
+.agro-preview {
+  margin-top: 1rem; padding: 0.8rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 8px; color: #166534; display: flex; flex-wrap: wrap; gap: 1.5rem;
+}
+.agro-sublista { margin: 1.25rem 0; }
+.agro-sublista h4 { margin: 0 0 8px; }
+
+/* barras (irrigação) */
+.agro-barras { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; }
+.agro-barra { display: grid; grid-template-columns: 110px 1fr 110px; gap: 10px; align-items: center; font-size: 0.875rem; }
+.agro-barra .trilho { background: #f1f5f9; border-radius: 999px; height: 10px; overflow: hidden; }
+.agro-barra .preench { background: #0ea5e9; height: 100%; border-radius: 999px; }
+
+@media (max-width: 640px) {
+  .agro-form-grid { grid-template-columns: 1fr; }
+  .agro-barra { grid-template-columns: 80px 1fr 90px; }
+}

@@ -503,3 +503,37 @@ async def criar_produto(produto: ProdutoCreate):
         )
     finally:
         conn.close()
+
+@router.get("/cooperativas-mapa")
+async def cooperativas_mapa():
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id_cooperativa, nome, endereco, bairro, cidade, estado
+            FROM cooperativa
+            WHERE cidade IS NOT NULL
+            ORDER BY nome
+            """
+        )
+        return [
+            {
+                "id": r[0],
+                "nome": r[1],
+                "endereco": r[2],
+                "bairro": r[3],
+                "cidade": r[4],
+                "estado": r[5],
+            }
+            for r in cur.fetchall()
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao listar: {e}")
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()

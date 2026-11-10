@@ -3,6 +3,8 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 pydantic
+pyjwt
+httpx
 
 styled-components
 prop-types

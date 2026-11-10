@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   ArrowRight,
@@ -21,7 +20,17 @@ import {
   X,
   Leaf,
   ChevronRight,
+  Lock, // AUTH
+  LogOut, // AUTH
+  // Ícones das novas funcionalidades
+  Wheat,
+  Boxes,
+  Tractor,
+  Droplets,
+  Scale,
 } from "lucide-react";
+
+import { useAuth } from "./contexts/AuthContext"; // AUTH
 
 import Home from "./pages/Home";
 import Acesso from "./pages/Acesso";
@@ -37,7 +46,17 @@ import Clientes from "./pages/Clientes";
 import Recursos from "./pages/Recursos";
 import Parcerias from "./pages/Parcerias";
 
+import Insumos from "./pages/Insumos";
+import Maquinas from "./pages/Maquinas";
+import Safras from "./pages/Safras";
+import recebimentos from "./pages/Recebimentos";
+import Irrigacao from "./pages/Irrigacao";
+
 import "./App.css";
+import "./agro.css"; // estilos globais do sistema
+
+// AUTH: abas que qualquer visitante pode abrir
+const PUBLIC_TABS = ["home", "dashboard", "acesso", "pecuaristas", "produtores", "produtos", "agricultores", "empresas", "cooperativas", "funcionarios", "clientes", "recursos", "parcerias", "insumos", "maquinas", "safras", "recebimentos", "irrigacao"];
 
 const pages = [
   {
@@ -106,6 +125,36 @@ const pages = [
     desc: "Conexões e acordos entre participantes do agro.",
     icon: Handshake,
   },
+  {
+    id: "safras",
+    name: "Safras",
+    desc: "Plantio, manejo, colheita e produtividade.",
+    icon: Wheat,
+  },
+  {
+    id: "insumos",
+    name: "Insumos",
+    desc: "Estoque de sementes, adubos e defensivos, com lotes.",
+    icon: Boxes,
+  },
+  {
+    id: "maquinas",
+    name: "Máquinas",
+    desc: "Uso, agendamento e manutenção de equipamentos.",
+    icon: Tractor,
+  },
+  {
+    id: "irrigacao",
+    name: "Irrigação",
+    desc: "Controle do uso de água e irrigação.",
+    icon: Droplets,
+  },
+  {
+    id: "recebimentos",
+    name: "Recebimentos",
+    desc: "Pesagem, classificação e nota de recebimento.",
+    icon: Scale,
+  },
 ];
 
 const features = [
@@ -127,22 +176,60 @@ const features = [
 ];
 
 function App() {
+  // AUTH
+  const { autenticado, user, logout } = useAuth();
+
   const [activeTab, setActiveTab] = useState("home");
+  const [pendingTab, setPendingTab] = useState(null); // AUTH: destino desejado antes do login
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // AUTH: sem login, qualquer aba privada vira "acesso".
+  // Cobre também logout e sessão expirada.
+  const currentTab =
+    !autenticado && !PUBLIC_TABS.includes(activeTab) ? "acesso" : activeTab;
+
   const navigate = (id) => {
-    setActiveTab(id);
+    // AUTH: bloqueia áreas privadas e lembra para onde o usuário queria ir
+    if (!autenticado && !PUBLIC_TABS.includes(id)) {
+      setPendingTab(id);
+      setActiveTab("acesso");
+    } else {
+      setActiveTab(id);
+    }
+
     setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // AUTH: chamado pelo Acesso após login bem-sucedido
+  const handleLoginSucesso = () => {
+    setActiveTab(pendingTab || "dashboard");
+    setPendingTab(null);
+  };
+
+  // AUTH
+  const handleSair = () => {
+    logout();
+    setPendingTab(null);
+    setActiveTab("home");
+    setMenuOpen(false);
+  };
+
   const renderContent = () => {
-    switch (activeTab) {
+    switch (currentTab) {
       case "home":
         return <Home />;
 
       case "acesso":
-        return <Acesso />;
+        return (
+          <Acesso
+            onVoltar={() => {
+              setPendingTab(null);
+              navigate("home");
+            }}
+            onSucesso={handleLoginSucesso}
+          />
+        );
 
       case "dashboard":
         return <Dashboard />;
@@ -177,14 +264,35 @@ function App() {
       case "parcerias":
         return <Parcerias />;
 
+      case "insumos":
+        return <Insumos />;
+
+      case "maquinas":
+        return <Maquinas />;
+
+      case "safras":
+        return <Safras />;
+
+      case "recebimentos":
+        return <recebimentos />;
+
+      case "irrigacao":
+        return <Irrigacao />;
+
+
       default:
         return <Home />;
     }
   };
 
+  // AUTH: a tela de acesso ocupa a página toda, sem sidebar
+  if (currentTab === "acesso") {
+    return renderContent();
+  }
+
   // A página Home continua sendo o ponto de entrada
   // do sistema. As demais áreas mantêm seus componentes atuais.
-  if (activeTab !== "home") {
+  if (currentTab !== "home") {
     return (
       <div className="app-container">
         <aside className="sidebar">
@@ -203,43 +311,56 @@ function App() {
           <p className="sidebar-label">MENU PRINCIPAL</p>
 
           <nav className="sidebar-nav">
-            <button
-              className="nav-item"
-              onClick={() => navigate("home")}
-            >
+            <button className="nav-item" onClick={() => navigate("home")}>
               <Leaf size={18} />
               Início
             </button>
 
             {pages.map((item) => {
               const Icon = item.icon;
+              // AUTH: cadeado para visitantes nas áreas privadas
+              const bloqueado =
+                !autenticado && !PUBLIC_TABS.includes(item.id);
 
               return (
                 <button
                   key={item.id}
-                  className={`nav-item ${activeTab === item.id ? "active" : ""
+                  className={`nav-item ${currentTab === item.id ? "active" : ""
                     }`}
                   onClick={() => navigate(item.id)}
                 >
                   <Icon size={18} />
                   {item.name}
+                  {bloqueado && (
+                    <Lock size={14} style={{ marginLeft: "auto" }} />
+                  )}
                 </button>
               );
             })}
           </nav>
 
+          {/* AUTH: rodapé com Entrar / Sair */}
           <div className="sidebar-footer">
-            <Sprout size={17} />
-            Gestão inteligente do agro
+            {autenticado ? (
+              <>
+                <span>Olá, {user?.nome}</span>
+                <button className="nav-item" onClick={handleSair}>
+                  <LogOut size={17} />
+                  Sair
+                </button>
+              </>
+            ) : (
+              <button className="nav-item" onClick={() => navigate("acesso")}>
+                <ArrowRight size={17} />
+                Entrar
+              </button>
+            )}
           </div>
         </aside>
 
         <main className="main-content">
           <header className="content-topbar">
-            <button
-              className="back-home"
-              onClick={() => navigate("home")}
-            >
+            <button className="back-home" onClick={() => navigate("home")}>
               <ArrowRight size={17} />
               Voltar ao início
             </button>
@@ -281,12 +402,17 @@ function App() {
           <a href="#recursos" onClick={() => setMenuOpen(false)}>
             Recursos
           </a>
-          <button
-            className="header-cta"
-            onClick={() => navigate("acesso")}
-          >
-            Acessar sistema <ArrowRight size={16} />
-          </button>
+
+          {/* AUTH: botão muda conforme o estado de login */}
+          {autenticado ? (
+            <button className="header-cta" onClick={handleSair}>
+              Sair <LogOut size={16} />
+            </button>
+          ) : (
+            <button className="header-cta" onClick={() => navigate("acesso")}>
+              Acessar sistema <ArrowRight size={16} />
+            </button>
+          )}
         </nav>
 
         <button
@@ -371,6 +497,9 @@ function App() {
           <div className="platform-grid">
             {pages.map((page, index) => {
               const Icon = page.icon;
+              // AUTH: indica áreas que exigem login
+              const bloqueado =
+                !autenticado && !PUBLIC_TABS.includes(page.id);
 
               return (
                 <button
@@ -391,7 +520,15 @@ function App() {
                   <p>{page.desc}</p>
 
                   <span className="card-link">
-                    Acessar área <ChevronRight size={17} />
+                    {bloqueado ? (
+                      <>
+                        Entrar para acessar <Lock size={15} />
+                      </>
+                    ) : (
+                      <>
+                        Acessar área <ChevronRight size={17} />
+                      </>
+                    )}
                   </span>
                 </button>
               );
@@ -417,11 +554,13 @@ function App() {
               participantes e apoiar decisões mais estratégicas.
             </p>
 
+            {/* AUTH: logado vai direto ao dashboard */}
             <button
               className="features-button"
-              onClick={() => navigate("acesso")}
+              onClick={() => navigate(autenticado ? "dashboard" : "acesso")}
             >
-              Acessar plataforma <ArrowRight size={17} />
+              {autenticado ? "Abrir dashboard" : "Acessar plataforma"}{" "}
+              <ArrowRight size={17} />
             </button>
           </div>
 
@@ -458,11 +597,14 @@ function App() {
               uma plataforma centralizada.
             </p>
           </div>
+
+          {/* AUTH */}
           <button
             className="closing-button"
-            onClick={() => navigate("acesso")}
+            onClick={() => navigate(autenticado ? "dashboard" : "acesso")}
           >
-            Entrar no sistema <ArrowRight size={17} />
+            {autenticado ? "Ir para o dashboard" : "Entrar no sistema"}{" "}
+            <ArrowRight size={17} />
           </button>
         </section>
       </main>

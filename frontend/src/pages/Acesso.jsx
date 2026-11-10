@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { z } from "zod";
 import {
@@ -11,6 +10,7 @@ import {
     AlertCircle,
 } from "lucide-react";
 import api from "../services/api";
+import { useAuth } from "../contexts/AuthContext"; // AUTH
 import "./Acesso.css";
 
 // ============================================================
@@ -90,7 +90,10 @@ const maskTel = (value) => {
 // COMPONENTE DE ACESSO
 // ============================================================
 
-export default function Acesso({ onVoltar }) {
+// AUTH: recebe onVoltar e onSucesso do App
+export default function Acesso({ onVoltar, onSucesso }) {
+    const { login } = useAuth(); // AUTH
+
     const [mode, setMode] = useState("cadastro");
 
     const [nome, setNome] = useState("");
@@ -103,13 +106,9 @@ export default function Acesso({ onVoltar }) {
     const [msg, setMsg] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Retorna à página inicial do aplicativo.
+    // Retorna à página inicial (o App controla a navegação).
     function voltarInicio() {
-        if (onVoltar) {
-            onVoltar();
-        } else {
-            window.location.href = "/";
-        }
+        onVoltar?.(); // AUTH
     }
 
     // ==========================================================
@@ -188,14 +187,15 @@ export default function Acesso({ onVoltar }) {
                     ok: true,
                     text:
                         resposta.data?.msg ||
-                        "Cadastro realizado com sucesso!",
+                        "Cadastro realizado com sucesso! Agora é só entrar.",
                 });
 
                 setSenha("");
+                setMode("entrar"); // AUTH: leva o usuário para a aba de login
             } else {
                 // ====================================================
                 // LOGIN: POST /usuario/login
-                // Esta rota precisa existir no FastAPI.
+                // Deve devolver { access_token, nome }
                 // ====================================================
 
                 const resposta = await api.post("/usuario/login", {
@@ -203,16 +203,21 @@ export default function Acesso({ onVoltar }) {
                     senha,
                 });
 
-                setMsg({
-                    ok: true,
-                    text: resposta.data?.nome
-                        ? `Bem-vindo(a), ${resposta.data.nome}!`
-                        : resposta.data?.msg ||
-                        "Login realizado com sucesso!",
-                });
+                // AUTH: pega o token devolvido pelo backend
+                const token =
+                    resposta.data?.access_token || resposta.data?.token;
 
-                // Aqui você pode encaminhar o usuário para o dashboard
-                // quando a autenticação e a sessão estiverem configuradas.
+                if (!token) {
+                    setMsg({
+                        ok: false,
+                        text: "O servidor não devolveu o token. Verifique a rota /usuario/login.",
+                    });
+                    return; // o finally ainda desliga o loading
+                }
+
+                // AUTH: salva a sessão e avisa o App para sair da tela de acesso
+                login(token, { nome: resposta.data?.nome });
+                onSucesso?.();
             }
         } catch (error) {
             const detail = error.response?.data?.detail;

@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+load_dotenv()
 
 from db import get_neon_connection
+
+from bovtrace import router as bovtrace_router
 
 from crud_usuario import router as usuario_router
 from crud import router as produtor_router
@@ -146,6 +150,10 @@ app.include_router(
     cooperativa_router,
     prefix="/cooperativa",
     tags=["Cooperativa"]
+)
+
+app.include_router(
+    bovtrace_router 
 )
 
 app.include_router(

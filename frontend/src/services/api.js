@@ -31,6 +31,20 @@ export const pecuaristaAPI = {
   excluir: (id) => api.delete(`/pecuarista/${id}`),
 };
 
+export const bovtraceAPI = {
+  movimentacoes: (params = {}) => api.get("/bovtrace/transacoes", { params }),
+
+  listarProtocolos: () => api.get("/bovtrace/protocolos"),
+
+  listarRacas: () => api.get("/bovtrace/racas"),
+
+  registrarTransacao: (dados) => api.post("/bovtrace/transacoes", dados),
+
+  consultarTransacao: (token) => api.get(`/bovtrace/transacoes/${token}`),
+
+  consultarTransito: (codigo) => api.get(`/bovtrace/transitos/${codigo}`),
+};
+
 export const empresaAPI = {
   listar: () => api.get("/empresa"),
   criar: (dados) => api.post("/empresa", dados),
@@ -89,5 +103,24 @@ export const associadoAPI = {
   atualizar: (id, dados) => api.put(`/associado/${id}`, dados),
   excluir: (id) => api.delete(`/associado/${id}`),
 };
+
+const crud = (base, idParam) => ({
+  listar: () => api.get(base),
+  criar: (dados) => api.post(base, dados),
+  atualizar: (id, dados) => api.put(`${base}/${id}`, dados),
+  excluir: (id) => api.delete(`${base}/${id}`),
+});
+
+export const safrasAPI = crud("/safras"); // RF06
+export const manejosAPI = crud("/manejos"); // RF06
+export const insumosAPI = crud("/insumos"); // RF07
+export const lotesAPI = crud("/lotes-insumo"); // RF07
+export const movInsumosAPI = crud("/movimentacoes-insumo"); // RF07
+export const maquinasAPI = crud("/maquinas"); // RF08
+export const usoMaquinasAPI = crud("/uso-maquinas"); // RF08
+export const agendMaquinasAPI = crud("/agendamentos-maquinas"); // RF08
+export const manutMaquinasAPI = crud("/manutencoes-maquinas"); // RF08
+export const irrigacaoAPI = crud("/irrigacoes"); // RF09
+export const recebimentosAPI = crud("/recebimentos"); // RF10
 
 export default api;
