@@ -21,6 +21,7 @@ from crud_empresa import router as empresa_router
 
 from crud_produtos_cadastrados import router as produto_cooperativa_router
 from crud_associado import router as associado_router
+from crud_gestao_agro import router as gestao_agro_router
 
 app = FastAPI(
     title="AgroLinker API",
