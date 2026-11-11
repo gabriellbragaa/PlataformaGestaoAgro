@@ -22,6 +22,7 @@ from crud_empresa import router as empresa_router
 from crud_produtos_cadastrados import router as produto_cooperativa_router
 from crud_associado import router as associado_router
 from crud_gestao_agro import router as gestao_agro_router
+from crud_gestao_agro import router as gestao_agro_router
 
 app = FastAPI(
     title="AgroLinker API",
@@ -39,6 +40,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://plataforma-gestao-agro-qhev.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -172,3 +174,9 @@ app.include_router(
     prefix="/associado",
     tags=["Associado"]
 )   
+
+app.include_router(
+    gestao_agro_router,
+    prefix="/gestao",
+    tags=["Gestão Agro"]
+)
